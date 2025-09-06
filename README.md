@@ -7,4 +7,4 @@
 
 Clone o repositório completo.  
 Ative o Back-End seguindo o README da pasta meu_app_BACK.  
-Por fim, abra o arquivo index.html da pasta meu_app_FRONT no seu browser.
+E ative o Front-End seguindo o README da pasta meu_app_FRONT.
