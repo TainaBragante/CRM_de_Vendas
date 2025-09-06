@@ -1,24 +1,28 @@
 from flask_openapi3 import OpenAPI, Info, Tag
 from flask import redirect
 from flask_cors import CORS
-from urllib.parse import quote
-import httpx
+from urllib.parse import unquote
 from sqlalchemy.exc import IntegrityError
-from model import Base, engine, SessionLocal, Cliente
-from schemas import ClienteIn, ClienteOut
+from model import *
+from schemas import *
+import httpx
+import logging
 
-# ---------- App & Swagger ----------
-info = Info(title="ERP Comercial - API", version="1.0.0")
+
+# Logger
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+# Swagger 
+info = Info(title="CRM VENDAS - API", version="1.0.0")
 app = OpenAPI(__name__, info=info)
-CORS(app, resources={r"*": {"origins": ["http://localhost:5173"]}})
+CORS(app)
+home_tag = Tag(name="Documentação", description="Selecione a documentação: Swagger, Redoc ou RapiDoc")
+cliente_tag = Tag(name="Clientes", description="Cadastro, consulta e remoção de clientes")
 
-home_tag = Tag(name="Documentação", description="Escolha Swagger / Redoc / RapiDoc")
-cliente_tag = Tag(name="Clientes", description="Cadastro e consulta de clientes")
-
-# ---------- DB bootstrap ----------
 Base.metadata.create_all(engine)
 
-# ---------- Utils ----------
+# Utils
 def only_digits(v: str) -> str:
     return "".join(c for c in (v or "") if c.isdigit())
 
@@ -51,139 +55,165 @@ async def via_cep(cep: str) -> dict:
         "uf": data.get("uf", ""),
     }
 
-# ---------- Docs ----------
+
+# Documentação
 @app.get("/", tags=[home_tag])
 def home():
-    """Redireciona para /openapi (Swagger/Redoc/RapiDoc)."""
+    """Redireciona para /openapi, tela que permite a escolha do estilo de documentação (Swagger/Redoc/RapiDoc)."""
     return redirect("/openapi")
 
-@app.get("/health")
-def health():
-    return {"status": "ok"}
 
-@app.get("/deps")
-async def deps():
-    try:
-        await via_cep("01001000")
-        return {"viacep": "ok"}
-    except Exception as e:
-        return {"viacep": f"down: {e}"}, 503
+# Clientes
+@app.post("/cliente", tags=[cliente_tag], responses={"200": ClienteViewSchema, "400": ErrorSchema})
+def add_cliente(form: ClienteSchema):
+    """Adiciona um novo cliente à base de dados.
 
-# ---------- Clientes ----------
-@app.post("/clientes", tags=[cliente_tag])
-async def criar_cliente(form: ClienteIn):
-    """
-    Cadastra um cliente:
-    - valida CPF por dígitos (válido ≠ existência);
-    - completa endereço via ViaCEP;
-    - salva no SQLite.
+    Retorna os dados do cliente adicionado.
     """
     if not cpf_valido(form.cpf):
-        return {"detail": "CPF inválido."}, 400
+        return ErrorSchema(message="CPF inválido"), 400
 
+    db = SessionLocal()
     try:
-        # completa endereço
-        cep_data = await via_cep(form.endereco.cep)
+        endereco = {}
+        try:
+            endereco = httpx.get(f"https://viacep.com.br/ws/{only_digits(form.cep)}/json/").json()
+            if endereco.get("erro"):
+                raise ValueError("CEP não encontrado")
+        except Exception as e:
+            logger.error(f"Erro ao buscar CEP: {e}")
+            return ErrorSchema(message="Erro ao buscar CEP"), 400
 
-        cli = Cliente(
-            nome=form.nome,
+        cliente = Cliente(
             cpf=only_digits(form.cpf),
+            nome=form.nome,
             email=form.email,
             telefone=only_digits(form.telefone),
-            cep=cep_data["cep"],
-            numero=form.endereco.numero,
-            complemento=form.endereco.complemento or "",
-            logradouro=cep_data["logradouro"],
-            bairro=cep_data["bairro"],
-            cidade=cep_data["cidade"],
-            uf=cep_data["uf"],
+            cep=only_digits(form.cep),
+            logradouro=endereco.get("logradouro", ""),
+            numero=form.numero,
+            complemento=form.complemento or "",
+            bairro=endereco.get("bairro", ""),
+            cidade=endereco.get("localidade", ""),
+            estado=endereco.get("uf", "")
         )
-
-        session = SessionLocal()
-        session.add(cli)
-        session.commit()
-        session.refresh(cli)
-        session.close()
-
-        out = ClienteOut(
-            id=cli.id,
-            nome=cli.nome,
-            cpf=cli.cpf,
-            email=cli.email,
-            telefone=cli.telefone,
-            endereco={
-                "cep": cli.cep,
-                "numero": cli.numero,
-                "complemento": cli.complemento,
-                "logradouro": cli.logradouro,
-                "bairro": cli.bairro,
-                "cidade": cli.cidade,
-                "uf": cli.uf,
-            },
-        )
-        return out.dict(), 201
-
-    except IntegrityError:
-        # CPF único
-        return {"detail": "Cliente com este CPF já existe."}, 409
-    except ValueError as ve:
-        return {"detail": str(ve)}, 400
+        db.add(cliente)
+        db.commit()
+        db.refresh(cliente)
+        return apresentar_cliente(cliente)
+    except IntegrityError as e:
+        db.rollback()
+        logger.error(f"Erro de integridade: {e}")
+        return ErrorSchema(message="Cliente com CPF, email ou telefone já existe."), 409
     except Exception as e:
-        return {"detail": f"Erro interno: {e}"}, 500
+        db.rollback()
+        logger.error(f"Erro ao adicionar cliente: {e}")
+        return ErrorSchema(message="Erro ao adicionar cliente."), 400
+    finally:
+        db.close()
 
-@app.get("/clientes", tags=[cliente_tag])
-def listar_clientes():
-    """Lista todos os clientes."""
-    session = SessionLocal()
-    rows = session.query(Cliente).order_by(Cliente.created_at.desc()).all()
-    session.close()
+@app.get("/cliente", tags=[cliente_tag], responses={"200": ListagemClientesSchema, "400": ErrorSchema})
+def get_clientes():
+    """Lista todos os clientes cadastrados.
 
-    return [
-        {
-            "id": c.id,
-            "nome": c.nome,
-            "cpf": c.cpf,
-            "email": c.email,
-            "telefone": c.telefone,
-            "endereco": {
-                "cep": c.cep,
-                "numero": c.numero,
-                "complemento": c.complemento,
-                "logradouro": c.logradouro,
-                "bairro": c.bairro,
-                "cidade": c.cidade,
-                "uf": c.uf,
-            },
-        }
-        for c in rows
-    ]
+    Retorna uma lista com todos os clientes.
+    """
+    db = SessionLocal()
+    try:
+        clientes = db.query(Cliente).all()
+        return ListagemClientesSchema(clientes=apresentar_clientes(clientes))
+    except Exception as e:
+        logger.error(f"Erro ao listar clientes: {e}")
+        return ErrorSchema(message="Erro ao listar clientes."), 400
+    finally:
+        db.close()
 
-@app.get("/clientes/<id>", tags=[cliente_tag])
-def obter_cliente(id: str):
-    """Retorna um cliente por id."""
-    session = SessionLocal()
-    c = session.get(Cliente, id)
-    session.close()
-    if not c:
-        return {"detail": "Cliente não encontrado."}, 404
-    return {
-        "id": c.id,
-        "nome": c.nome,
-        "cpf": c.cpf,
-        "email": c.email,
-        "telefone": c.telefone,
-        "endereco": {
-            "cep": c.cep,
-            "numero": c.numero,
-            "complemento": c.complemento,
-            "logradouro": c.logradouro,
-            "bairro": c.bairro,
-            "cidade": c.cidade,
-            "uf": c.uf,
-        },
-    }
+@app.get("/cliente/{cpf}", tags=[cliente_tag], responses={"200": ClienteViewSchema, "404": ErrorSchema})
+def get_cliente(cpf: str):
+    """Busca um cliente pelo CPF.
 
-# ---------- Run ----------
-if __name__ == "__main__":
-    # Swagger: /openapi, /openapi/swagger, /openapi/redoc, /openapi/rapidoc
-    app.run(host="0.0.0.0", port=8000, debug=True)
+    Retorna os dados do cliente encontrado.
+    """
+    db = SessionLocal()
+    try:
+        cliente = db.query(Cliente).filter(Cliente.cpf == only_digits(cpf)).first()
+        if not cliente:
+            return ErrorSchema(message="Cliente não encontrado."), 404
+        return apresentar_cliente(cliente)
+    except Exception as e:
+        logger.error(f"Erro ao buscar cliente: {e}")
+        return ErrorSchema(message="Erro ao buscar cliente."), 400
+    finally:
+        db.close()
+
+@app.delete("/cliente/{cpf}", tags=[cliente_tag], responses={"200": ClienteDeleteSchema, "404": ErrorSchema})
+def delete_cliente(cpf: str):
+    """Deleta um cliente pelo CPF.
+
+    Retorna uma mensagem de confirmação da deleção.
+    """
+    db = SessionLocal()
+    try:
+        cliente = db.query(Cliente).filter(Cliente.cpf == only_digits(cpf)).first()
+        if not cliente:
+            return ErrorSchema(message="Cliente não encontrado."), 404
+        db.delete(cliente)
+        db.commit()
+        return deletar_cliente(cpf=only_digits(cpf))
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Erro ao deletar cliente: {e}")
+        return ErrorSchema(message="Erro ao deletar cliente."), 400
+    finally:
+        db.close()
+
+@app.put("/cliente/{cpf}", tags=[cliente_tag], responses={"200": ClienteViewSchema, "404": ErrorSchema})
+def update_cliente(cpf: str, form: ClienteSchema):
+    """Atualiza os dados de um cliente pelo CPF.
+
+    Retorna os dados atualizados do cliente.
+    """
+    if not cpf_valido(form.cpf):
+        return ErrorSchema(message="CPF inválido"), 400
+
+    db = SessionLocal()
+    try:
+        cliente = db.query(Cliente).filter(Cliente.cpf == only_digits(cpf)).first()
+        if not cliente:
+            return ErrorSchema(message="Cliente não encontrado."), 404
+
+        endereco = {}
+        try:
+            endereco = httpx.get(f"https://viacep.com.br/ws/{only_digits(form.cep)}/json/").json()
+            if endereco.get("erro"):
+                raise ValueError("CEP não encontrado")
+        except Exception as e:
+            logger.error(f"Erro ao buscar CEP: {e}")
+            return ErrorSchema(message="Erro ao buscar CEP"), 400
+
+        cliente.cpf = only_digits(form.cpf)
+        cliente.nome = form.nome
+        cliente.email = form.email
+        cliente.telefone = only_digits(form.telefone)
+        cliente.cep = only_digits(form.cep)
+        cliente.logradouro = endereco.get("logradouro", "")
+        cliente.numero = form.numero
+        cliente.complemento = form.complemento or ""
+        cliente.bairro = endereco.get("bairro", "")
+        cliente.cidade = endereco.get("localidade", "")
+        cliente.estado = endereco.get("uf", "")
+
+        db.commit()
+        db.refresh(cliente)
+        return apresentar_cliente(cliente)
+    except IntegrityError as e:
+        db.rollback()
+        logger.error(f"Erro de integridade: {e}")
+        return ErrorSchema(message="Cliente com CPF, email ou telefone já existe."), 409
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Erro ao atualizar cliente: {e}")
+        return ErrorSchema(message="Erro ao atualizar cliente."), 400
+    finally:
+        db.close()
+

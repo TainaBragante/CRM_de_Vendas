@@ -4,7 +4,7 @@ import { isEmail } from "validator";
 import { useState } from "react";
 
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const onlyDigits = (v) => (v || "").replace(/\D/g, "");
 
@@ -75,17 +75,14 @@ export default function CadastroCliente() {
     setSuccessMsg("");
     setLoading(true);
     try {
-      // payload enxuto: o back completa dados do CEP
       const payload = {
-        nome: data.nome,
         cpf: onlyDigits(data.cpf),
+        nome: data.nome,
         email: data.email,
         telefone: onlyDigits(data.whatsapp),
-        endereco: {
-          cep: onlyDigits(data.cep),
-          numero: String(data.numero),
-          complemento: data.complemento || "",
-        },
+        cep: onlyDigits(data.cep),
+        numero: String(data.numero),
+        complemento: data.complemento || "",
       };
 
       const resp = await fetch(`${API_URL}/clientes`, {
@@ -100,7 +97,7 @@ export default function CadastroCliente() {
           const body = await resp.json();
           detail = body?.detail || detail;
         } catch {
-          // Intentionally left blank: fallback to default error message
+          // Fallback to default error message
         }
         throw new Error(detail);
       }
