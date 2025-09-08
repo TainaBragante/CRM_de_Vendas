@@ -4,9 +4,9 @@ import { isEmail } from "validator";
 import { useState } from "react";
 
 
-const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:5000";
+const API_URL = import.meta.env.VITE_API_URL || "192.168.1.5:5000";
 
-const onlyDigits = (v) => (v || "").replace(/\D/g, "");
+const onlyDigits = (str) => str.replace(/\D/g, '');
 
 // Validação algorítmica de CPF válido 
 function isValidCPF(value) {
@@ -63,7 +63,7 @@ export default function CadastroCliente() {
       setValue("rua", data.logradouro || "");
       setValue("bairro", data.bairro || "");
       setValue("cidade", data.localidade || "");
-      setValue("estado", data.uf || "");
+      setValue("estado", data.estado || "");
       setFocus("numero");
     } catch {
       setError("cep", { type: "manual", message: "Erro ao buscar o CEP. Tente novamente." });
@@ -266,6 +266,7 @@ export default function CadastroCliente() {
             {loading ? "Salvando..." : "Salvar"}
           </button>
         </div>
+        
       </div>
     </form>
   );

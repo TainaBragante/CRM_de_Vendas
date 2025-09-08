@@ -1,5 +1,5 @@
 from flask_openapi3 import OpenAPI, Info, Tag
-from flask import redirect
+from flask import redirect, request
 from flask_cors import CORS
 from urllib.parse import unquote
 from sqlalchemy.exc import IntegrityError
@@ -33,6 +33,13 @@ def add_cliente(form: ClienteSchema):
 
     Retorna os dados do cliente adicionado.
     """
+    
+    # aceitar dados JSON, do frontend
+    if request.content_type == "application/json":
+        form = ClienteSchema(**request.json)
+        logger.debug(f"Recebido JSON: {request.json}")
+   
+    # aceitar dados de formulário, do Swagger
     cliente = Cliente(
         cpf=form.cpf,
         nome=form.nome,
