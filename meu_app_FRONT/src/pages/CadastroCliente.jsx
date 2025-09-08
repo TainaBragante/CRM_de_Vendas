@@ -4,7 +4,7 @@ import { isEmail } from "validator";
 import { useState } from "react";
 
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:5000";
 
 const onlyDigits = (v) => (v || "").replace(/\D/g, "");
 
@@ -25,6 +25,7 @@ function isValidCPF(value) {
   if (d2 === 10) d2 = 0;
   return d2 === parseInt(cpf.charAt(10));
 }
+
 
 export default function CadastroCliente() {
   const navigate = useNavigate();
@@ -69,7 +70,7 @@ export default function CadastroCliente() {
     }
   };
 
-  // Submit -> envia para o back
+  // Submit -> envia para o backend
   const onSubmit = async (data) => {
     setServerError("");
     setSuccessMsg("");
@@ -81,8 +82,12 @@ export default function CadastroCliente() {
         email: data.email,
         telefone: onlyDigits(data.whatsapp),
         cep: onlyDigits(data.cep),
+        logradouro: data.rua,
         numero: String(data.numero),
         complemento: data.complemento || "",
+        bairro: data.bairro,
+        cidade: data.cidade,
+        estado: data.estado,
       };
 
       const resp = await fetch(`${API_URL}/cliente`, {
@@ -110,6 +115,7 @@ export default function CadastroCliente() {
       setLoading(false);
     }
   };
+
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>

@@ -1,14 +1,5 @@
-from sqlalchemy.orm import declarative_base, sessionmaker
-from sqlalchemy import create_engine
-import os
+from sqlalchemy.ext.declarative import declarative_base
 
 
-DB_URL = os.getenv("DATABASE_URL", "sqlite:///./data.db")
-
-engine = create_engine(
-    DB_URL,
-    connect_args={"check_same_thread": False} if DB_URL.startswith("sqlite") else {},
-    future=True,
-)
-SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
+# cria uma classe Base para o instanciamento de novos objetos/tabelas
 Base = declarative_base()

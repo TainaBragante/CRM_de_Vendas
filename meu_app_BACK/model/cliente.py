@@ -1,5 +1,4 @@
 from sqlalchemy import Column, String, Integer
-from sqlalchemy.sql import func
 from .base import Base
 
 
@@ -18,3 +17,20 @@ class Cliente(Base):
     bairro     = Column(String(140), nullable=False)
     cidade     = Column(String(140), nullable=False)
     estado     = Column(String(2),   nullable=False)
+
+    def __init__(self, cpf: str, nome: str, email: str, telefone: str, cep: str, logradouro: str, numero: str, complemento: str, bairro: str, cidade: str, estado: str):
+        """
+        Cria um cliente
+        """
+        self.cpf         = cpf
+        self.nome        = nome
+        self.email       = email
+        self.telefone    = telefone
+        self.cep         = cep
+        self.logradouro  = logradouro
+        self.numero      = numero
+        self.complemento = complemento
+        self.bairro      = bairro
+        self.cidade      = cidade
+        self.estado      = estado
+
