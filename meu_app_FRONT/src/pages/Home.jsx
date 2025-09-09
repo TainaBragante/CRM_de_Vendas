@@ -1,11 +1,13 @@
 import { Link, NavLink, Outlet } from "react-router-dom";
 import "../style.css";
 
+
 export default function Home() {
   return (
     <div className="container">
       <header className="topbar">
         <h1>Gestão Comercial</h1>
+        <p>Gerencie leads, orçamentos e contratos</p>
         <Link to="/leads/novo" className="btnPrimary">+ Novo Lead</Link>
       </header>
 
