@@ -19,7 +19,7 @@ export default function Home() {
         <div className="card"><span>Taxa Conversão</span><strong>68%</strong></div>
       </section>
 
-      {/* abas */}
+      {/* home-tabs */}
       <nav className="tabs">
         <NavLink to="/leads" className={({isActive}) => isActive ? "tab active" : "tab"}>
           Leads & Orçamentos

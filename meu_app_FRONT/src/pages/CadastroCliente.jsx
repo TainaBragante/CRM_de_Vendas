@@ -2,13 +2,13 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { isEmail } from "validator";
 import { useState } from "react";
-
+import BackHomeButton from "../components/BackHomeButton";
 
 const API_URL = import.meta.env.VITE_API_URL || "192.168.1.5:5000";
 
-const onlyDigits = (str) => str.replace(/\D/g, '');
+const onlyDigits = (str) => str.replace(/\D/g, "");
 
-// Validação algorítmica de CPF válido 
+// Validação algorítmica de CPF válido
 function isValidCPF(value) {
   const cpf = onlyDigits(value);
   if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
@@ -25,7 +25,6 @@ function isValidCPF(value) {
   if (d2 === 10) d2 = 0;
   return d2 === parseInt(cpf.charAt(10));
 }
-
 
 export default function CadastroCliente() {
   const navigate = useNavigate();
@@ -48,7 +47,10 @@ export default function CadastroCliente() {
     const cep = onlyDigits(e.target.value);
     if (cep.length !== 8) {
       clearErrors("cep");
-      setError("cep", { type: "manual", message: "Formato de CEP inválido (use 8 dígitos)." });
+      setError("cep", {
+        type: "manual",
+        message: "Formato de CEP inválido (use 8 dígitos).",
+      });
       return;
     }
     clearErrors("cep");
@@ -66,7 +68,10 @@ export default function CadastroCliente() {
       setValue("estado", data.estado || "");
       setFocus("numero");
     } catch {
-      setError("cep", { type: "manual", message: "Erro ao buscar o CEP. Tente novamente." });
+      setError("cep", {
+        type: "manual",
+        message: "Erro ao buscar o CEP. Tente novamente.",
+      });
     }
   };
 
@@ -116,17 +121,16 @@ export default function CadastroCliente() {
     }
   };
 
-
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="container">
+      <div className="leadForm">
         <h1>Novo Lead</h1>
         <p>Preencha todos os campos abaixo para cadastrar o novo lead:</p>
 
         {successMsg && <div className="success-message">{successMsg}</div>}
         {serverError && <div className="error-message">{serverError}</div>}
 
-        <div className="form-group">
+        <div className="form-lead">
           <label>CPF:</label>
           <input
             className={errors?.cpf ? "input-error" : ""}
@@ -142,7 +146,7 @@ export default function CadastroCliente() {
           {errors?.cpf && <p className="error-message">{errors.cpf.message}</p>}
         </div>
 
-        <div className="form-group">
+        <div className="form-lead">
           <label>Nome:</label>
           <input
             className={errors?.nome ? "input-error" : ""}
@@ -150,10 +154,12 @@ export default function CadastroCliente() {
             placeholder="Nome completo"
             {...register("nome", { required: "Preencha o nome." })}
           />
-          {errors?.nome && <p className="error-message">{errors.nome.message}</p>}
+          {errors?.nome && (
+            <p className="error-message">{errors.nome.message}</p>
+          )}
         </div>
 
-        <div className="form-group">
+        <div className="form-lead">
           <label>E-mail:</label>
           <input
             className={errors?.email ? "input-error" : ""}
@@ -164,10 +170,12 @@ export default function CadastroCliente() {
               validate: (value) => isEmail(value) || "E-mail inválido.",
             })}
           />
-          {errors?.email && <p className="error-message">{errors.email.message}</p>}
+          {errors?.email && (
+            <p className="error-message">{errors.email.message}</p>
+          )}
         </div>
 
-        <div className="form-group">
+        <div className="form-lead">
           <label>WhatsApp:</label>
           <input
             className={errors?.whatsapp ? "input-error" : ""}
@@ -176,13 +184,16 @@ export default function CadastroCliente() {
             placeholder="(DDD) número"
             {...register("whatsapp", {
               required: "Informe o WhatsApp.",
-              validate: (v) => onlyDigits(v).length >= 10 || "WhatsApp inválido.",
+              validate: (v) =>
+                onlyDigits(v).length >= 10 || "WhatsApp inválido.",
             })}
           />
-          {errors?.whatsapp && <p className="error-message">{errors.whatsapp.message}</p>}
+          {errors?.whatsapp && (
+            <p className="error-message">{errors.whatsapp.message}</p>
+          )}
         </div>
 
-        <div className="form-group">
+        <div className="form-lead">
           <label>CEP:</label>
           <input
             className={errors?.cep ? "input-error" : ""}
@@ -196,7 +207,7 @@ export default function CadastroCliente() {
           {errors?.cep && <p className="error-message">{errors.cep.message}</p>}
         </div>
 
-        <div className="form-group">
+        <div className="form-lead">
           <label>Rua:</label>
           <input
             className={errors?.rua ? "input-error" : ""}
@@ -207,7 +218,7 @@ export default function CadastroCliente() {
           {errors?.rua && <p className="error-message">{errors.rua.message}</p>}
         </div>
 
-        <div className="form-group">
+        <div className="form-lead">
           <label>Número:</label>
           <input
             className={errors?.numero ? "input-error" : ""}
@@ -216,10 +227,12 @@ export default function CadastroCliente() {
             placeholder="Número"
             {...register("numero", { required: "Preencha o número." })}
           />
-          {errors?.numero && <p className="error-message">{errors.numero.message}</p>}
+          {errors?.numero && (
+            <p className="error-message">{errors.numero.message}</p>
+          )}
         </div>
 
-        <div className="form-group">
+        <div className="form-lead">
           <label>Complemento:</label>
           <input
             type="text"
@@ -228,7 +241,7 @@ export default function CadastroCliente() {
           />
         </div>
 
-        <div className="form-group">
+        <div className="form-lead">
           <label>Bairro:</label>
           <input
             className={errors?.bairro ? "input-error" : ""}
@@ -236,10 +249,12 @@ export default function CadastroCliente() {
             placeholder="Bairro"
             {...register("bairro", { required: "Preencha o bairro." })}
           />
-          {errors?.bairro && <p className="error-message">{errors.bairro.message}</p>}
+          {errors?.bairro && (
+            <p className="error-message">{errors.bairro.message}</p>
+          )}
         </div>
 
-        <div className="form-group">
+        <div className="form-lead">
           <label>Cidade:</label>
           <input
             className={errors?.cidade ? "input-error" : ""}
@@ -247,10 +262,12 @@ export default function CadastroCliente() {
             placeholder="Cidade"
             {...register("cidade", { required: "Preencha a cidade." })}
           />
-          {errors?.cidade && <p className="error-message">{errors.cidade.message}</p>}
+          {errors?.cidade && (
+            <p className="error-message">{errors.cidade.message}</p>
+          )}
         </div>
 
-        <div className="form-group">
+        <div className="form-lead">
           <label>Estado:</label>
           <input
             className={errors?.estado ? "input-error" : ""}
@@ -258,13 +275,21 @@ export default function CadastroCliente() {
             placeholder="UF"
             {...register("estado", { required: "Preencha o estado." })}
           />
-          {errors?.estado && <p className="error-message">{errors.estado.message}</p>}
+          {errors?.estado && (
+            <p className="error-message">{errors.estado.message}</p>
+          )}
         </div>
 
-        <div className="form-group">
-          <button className="save" type="submit" disabled={loading}>
-            {loading ? "Salvando..." : "Salvar"}
-          </button>
+        <div className="align-buttons">
+          <div className="form-lead">
+            <BackHomeButton label="Voltar" />
+          </div>
+
+          <div className="form-lead">
+            <button className="save" type="submit" disabled={loading}>
+              {loading ? "Salvando..." : "Salvar"}
+            </button>
+          </div>
         </div>
         
       </div>
