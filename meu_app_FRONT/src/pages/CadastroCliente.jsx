@@ -4,8 +4,8 @@ import { isEmail } from "validator";
 import { useState } from "react";
 import BackHomeButton from "../components/BackHomeButton";
 
-const API_URL = import.meta.env.VITE_API_URL || "192.168.1.5:5000";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const onlyDigits = (str) => str.replace(/\D/g, "");
 
 // Validação algorítmica de CPF válido
@@ -49,7 +49,7 @@ export default function CadastroCliente() {
       clearErrors("cep");
       setError("cep", {
         type: "manual",
-        message: "Formato de CEP inválido (use 8 dígitos).",
+        message: "CEP inválido (digite 8 dígitos).",
       });
       return;
     }
@@ -122,11 +122,11 @@ export default function CadastroCliente() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="leadForm">
-        <h1>Novo Lead</h1>
-        <p>Preencha todos os campos abaixo para cadastrar o novo lead:</p>
+    <div className="leadForm">
+      <h1>Novo Lead</h1>
+      <p>Preencha todos os campos abaixo para cadastrar o novo lead:</p>
 
+      <form onSubmit={handleSubmit(onSubmit)}>
         {successMsg && <div className="success-message">{successMsg}</div>}
         {serverError && <div className="error-message">{serverError}</div>}
 
@@ -282,17 +282,15 @@ export default function CadastroCliente() {
 
         <div className="align-buttons">
           <div className="form-lead">
-            <BackHomeButton label="Voltar" />
+            <BackHomeButton />
           </div>
-
           <div className="form-lead">
             <button className="save" type="submit" disabled={loading}>
               {loading ? "Salvando..." : "Salvar"}
             </button>
           </div>
         </div>
-        
-      </div>
-    </form>
+      </form>
+    </div>
   );
 }

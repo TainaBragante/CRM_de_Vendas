@@ -33,7 +33,6 @@ def add_cliente(form: ClienteSchema):
 
     Retorna os dados do cliente adicionado.
     """
-    
     # aceitar dados JSON, do frontend
     if request.content_type == "application/json":
         form = ClienteSchema(**request.json)
@@ -149,6 +148,11 @@ def update_cliente(query: ClienteBuscaSchema, form: ClienteSchema):
 
     Retorna os dados atualizados do cliente.
     """
+    # aceitar dados JSON, do frontend
+    if request.content_type == "application/json":
+        form = ClienteSchema(**request.json)
+        logger.debug(f"Recebido JSON: {request.json}")
+    
     cliente_cpf = query.cpf
     logger.debug(f"Atualizando cliente com CPF: {cliente_cpf}")
     # criando conexão com a base
