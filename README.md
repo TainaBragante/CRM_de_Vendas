@@ -9,7 +9,7 @@
 
 **Descrição do fluxo:**
 - A **Interface (Front-End)** consome a **API (Back-End)** via HTTP (REST), e também consulta APIs externas públicas.
-- O **Back-End** persiste os dados em SQLite via SQLAlchemy.
+- O **Back-End** armazena os dados em SQLite via SQLAlchemy.
 
 
 ---
