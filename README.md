@@ -3,6 +3,16 @@
  Este [projeto](https://www.youtube.com/) demonstra na prática conceitos essenciais de desenvolvimento **Back-End Avançado**. Trata-se de um MVP (Minimum Viable Product) criado para implementar uma solução funcional para o gerenciamento de orçamentos e contratos fechados de clientes.
 
 
+## Arquitetura da aplicação
+
+![Arquitetura - Cenário 1](./cenario1.png)
+
+**Descrição do fluxo:**
+- A **Interface (Front-End)** consome a **API (Back-End)** via HTTP (REST), e também consulta APIs externas públicas.
+- O **Back-End** persiste os dados em SQLite via SQLAlchemy.
+
+
+---
 ## Como executar o MVP
 
 Clone o repositório completo.  
