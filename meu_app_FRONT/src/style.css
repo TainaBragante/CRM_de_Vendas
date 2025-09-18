@@ -35,13 +35,13 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0b1220;
-    --surface: #0f172a;
+    --bg: #1e283bf1;
+    --surface: #0f172ab4;
     --text: #e5e7eb;
     --muted: #94a3b8;
     --line: #1f2937;
-    --brand: #60a5fa;
-    --brand-600: #3b82f6;
+    --brand: #1663c2;
+    --brand-600: #1663c2;
     --brand-50: #0b1220;
     --shadow: 0 10px 30px rgba(0,0,0,.45), 0 2px 10px rgba(0,0,0,.4);
   }
@@ -439,7 +439,7 @@ a {
 .form-edit input,
 .form-lead textarea,
 .form-edit textarea {
-  background: #ffffff;
+  background: #ffffff28;
   border: 1px solid var(--line);
   border-radius: 10px;
   padding: 12px;
