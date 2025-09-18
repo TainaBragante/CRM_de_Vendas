@@ -191,4 +191,34 @@ def update_cliente(query: ClienteBuscaSchema, form: ClienteSchema):
             error_msg = "Erro ao atualizar cliente."
             logger.warning(f"Erro ao atualizar cliente: {cliente.nome}, CPF: {cliente.cpf} - {error_msg}")
             return {"mesage": error_msg}, 400
+
+@app.post("/cliente/proposta", tags=[cliente_tag], responses={"200": ClienteViewSchema, "409": ErrorSchema, "400": ErrorSchema})
+def enviar_proposta(query: ClienteBuscaSchema):
+    """Marca que a proposta foi enviada para o cliente.
+    """
+    cliente_cpf = query.cpf
+    logger.debug(f"Enviando proposta para cliente com CPF: {cliente_cpf}")
+    # criando conexão com a base
+    db = Session()
+    # fazendo a busca
+    cliente = db.query(Cliente).filter(Cliente.cpf == cliente_cpf).first()
+
+    if not cliente:
+        error_msg = "Cliente não encontrado."
+        logger.warning(f"Erro ao enviar proposta para cliente com CPF: {cliente_cpf} - {error_msg}")
+        return {"mesage": error_msg}, 404
+    else:
+        try:
+            # Simula o envio da proposta (aqui você pode integrar com um serviço de email, por exemplo)
+            logger.debug(f"Proposta enviada para o cliente: {cliente.nome}, CPF: {cliente.cpf}")
+            cliente.proposta_enviada = True
+
+            db.add(cliente)
+            db.commit()
+            return apresentar_cliente(cliente), 200
         
+        except Exception as e:
+            error_msg = "Erro ao enviar proposta."
+            logger.warning(f"Erro ao enviar proposta para o cliente: {cliente.nome}, CPF: {cliente.cpf} - {error_msg}")
+            return {"mesage": error_msg}, 400
+

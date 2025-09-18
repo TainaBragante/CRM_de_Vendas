@@ -12,13 +12,12 @@ const PRICE_TABLE = {
 };
 
 export default function LeadsOrcamentos() {
-  // estados da página
-  const [q, setQ] = useState("");          // termo de busca
+  const [q, setQ] = useState("");         
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
-  const [leads, setLeads] = useState([]);  // lista vinda do back
+  const [leads, setLeads] = useState([]);  
 
-  // carrega os clientes ao montar o componente
+  // carrega a lista de clientes do back
   useEffect(() => {
     let abort = false;
     setLoading(true);
@@ -31,7 +30,6 @@ export default function LeadsOrcamentos() {
       })
       .then((json) => {
         if (abort) return;
-        // o back retorna { clientes: [...] }
         const arr = Array.isArray(json) ? json : json.clientes || [];
         setLeads(arr);
       })
@@ -39,7 +37,7 @@ export default function LeadsOrcamentos() {
       .finally(() => !abort && setLoading(false));
 
     return () => {
-      abort = true; // evita setState após unmount
+      abort = true; 
     };
   }, []);
 
@@ -61,24 +59,47 @@ export default function LeadsOrcamentos() {
   }
 
   // Botão enviar proposta (monta e abre mensagem de proposta no WhatsApp)
-  const openWhats = (c, servicoKey = "1") => {
-    const tel = onlyDigits(c.telefone);
-    if (!tel) return alert("Cliente sem WhatsApp cadastrado.");
+ const openWhats = async (c) => {
+  if (c.proposta_enviada) {
+    alert("Proposta já enviada para este cliente.");
+    return;
+  }
 
-    const serv = PRICE_TABLE[servicoKey];
-    const msg = [
-      `Olá ${c.nome}! Tudo bem?`,
-      `Segue a proposta de serviços de contabilidade:`,
-      `1) ${PRICE_TABLE["1"].label} — R$ ${PRICE_TABLE["1"].valor.toLocaleString("pt-BR")}`,
-      `2) ${PRICE_TABLE["2"].label} — R$ ${PRICE_TABLE["2"].valor.toLocaleString("pt-BR")}`,
-      `3) ${PRICE_TABLE["3"].label} — R$ ${PRICE_TABLE["3"].valor.toLocaleString("pt-BR")}`,
-      "",
-      `Se optar por *${serv.label}*, me avise que já gero o contrato.`,
-    ].join("\n");
+  const tel = onlyDigits(c.telefone);
+  if (!tel) return alert("Cliente sem WhatsApp cadastrado.");
 
-    const url = `https://wa.me/55${tel}?text=${encodeURIComponent(msg)}`;
-    window.open(url, "_blank", "noopener");
-  };
+  const msg = [
+    `Olá ${c.nome}! Tudo bem?`,
+    `Segue a proposta de serviços de contabilidade:`,
+    `1) ${PRICE_TABLE["1"].label} — R$ ${PRICE_TABLE["1"].valor.toLocaleString("pt-BR")}`,
+    `2) ${PRICE_TABLE["2"].label} — R$ ${PRICE_TABLE["2"].valor.toLocaleString("pt-BR")}`,
+    `3) ${PRICE_TABLE["3"].label} — R$ ${PRICE_TABLE["3"].valor.toLocaleString("pt-BR")}`,
+    "",
+    `Qual serviço gostaria de contratar? Me avise que já gero o contrato.`,
+  ].join("\n");
+
+  // abre WhatsApp
+  const url = `https://wa.me/55${tel}?text=${encodeURIComponent(msg)}`;
+  window.open(url, "_blank", "noopener");
+
+  // marca no backend que a proposta foi enviada
+  try {
+    const resp = await fetch(`${API_URL}/cliente/proposta?cpf=${onlyDigits(c.cpf)}`, {
+      method: "POST",
+    });
+    if (!resp.ok) {
+      const j = await resp.json().catch(() => ({}));
+      alert(j?.mesage || "Falha ao marcar proposta como enviada.");
+      return;
+    }
+    // reflete na UI
+    setLeads((old) => old.map((x) =>
+      x.cpf === c.cpf ? { ...x, proposta_enviada: true } : x
+    ));
+  } catch {
+    alert("Erro de conexão ao marcar proposta como enviada.");
+  }
+};
 
   // Botão gerar contrato (ACEITE/RECUSA)
   const handleContrato = async (c) => {
@@ -92,10 +113,8 @@ export default function LeadsOrcamentos() {
         "*Contrato*",
         `Cliente: ${c.nome}`,
         `CPF: ${maskCPF(c.cpf)}`,
-        `Endereço: ${[c.logradouro, c.numero, c.complemento].filter(Boolean).join(", ")}`,
-        `Bairro: ${c.bairro} — ${c.cidade}/${c.estado}`,
         "",
-        "Conforme proposta enviada, seguimos com a contratação.",
+        "Conforme proposta enviada, seguiremos com a assinatura do contrato.",
       ].join("\n");
 
       if (tel) {
@@ -104,25 +123,11 @@ export default function LeadsOrcamentos() {
       }
       alert("Contrato gerado e enviado via WhatsApp.");
     } else {
-      const motivo = prompt("Cliente recusou. Informe o motivo para registrar:");
-      if (motivo) {
-        try {
-          // se quiser registrar no back, crie esse endpoint; aqui tentamos e, se não existir, guardamos local
-          await fetch(`${API_URL}/cliente/${onlyDigits(c.cpf)}/motivo`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ motivo }),
-          });
-        } catch {
-          // Error intentionally ignored
-        }
-        localStorage.setItem(`motivo_${onlyDigits(c.cpf)}`, motivo);
-        alert("Motivo registrado.");
-      }
+      alert("Contrato recusado.");
     }
   };
 
-  // render
+
   return (
     <section className="panel">
       <h2>Leads e Orçamentos</h2>
@@ -158,8 +163,12 @@ export default function LeadsOrcamentos() {
             </button>
 
             {/* Enviar Proposta (WhatsApp) */}
-            <button className="btnGhost" onClick={() => openWhats(c)}>
-              Enviar Proposta
+            <button
+              className={c.proposta_enviada ? "btnDisabled" : "btnGhost"}
+              disabled={!!c.proposta_enviada}
+              onClick={() => openWhats(c)}
+            >
+              {c.proposta_enviada ? "Proposta Enviada" : "Enviar Proposta"}
             </button>
 
             {/* Gerar Contrato (aceite/recusa) */}

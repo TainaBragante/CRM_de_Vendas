@@ -121,10 +121,10 @@ export default function CadastroCliente() {
     }
   };
 
+
   return (
     <div className="leadForm">
       <h1>Novo Lead</h1>
-      <p>Preencha todos os campos abaixo para cadastrar o novo lead:</p>
 
       <form onSubmit={handleSubmit(onSubmit)}>
         {successMsg && <div className="success-message">{successMsg}</div>}

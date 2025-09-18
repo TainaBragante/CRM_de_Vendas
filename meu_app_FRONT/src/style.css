@@ -1,37 +1,518 @@
-:root { --bg:#f6f8fb; --card:#fff; --line:#e6ebf2; --ink:#111827; --muted:#6b7280; --primary:#2563eb; }
-* { box-sizing:border-box; }
-body { margin:0; font-family: Inter, system-ui, Arial, sans-serif; background:var(--bg); color:var(--ink); }
-a { color:inherit; text-decoration:none; }
-.container { max-width:1100px; margin:0 auto; padding:24px; }
+/* ========================================================================
+   Base do tema 
+   ======================================================================== */
+:root {
+  /* Cores principais */
+  --bg: #f6f8fb;              /* fundo geral da aplicação */
+  --surface: #ffffff;          /* cartões, painéis, inputs */
+  --text: #0f172a;             /* texto principal (slate-900) */
+  --muted: #475569;            /* texto secundário (slate-600) */
+  --line: #e2e8f0;             /* bordas e divisórias */
+  --brand: #2563eb;            /* azul de ação principal */
+  --brand-600: #1d4ed8;        /* hover do primário */
+  --brand-50: #eff6ff;         /* fundo leve para estados */
 
-.topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
-.btnPrimary { background:var(--primary); color:white; padding:10px 14px; border-radius:10px; font-weight:600; }
+  /* Estado/feedback */
+  --ok: #16a34a;               /* sucesso */
+  --warn: #f59e0b;             /* aviso */
+  --danger: #ef4444;           /* erro */
 
-.cards { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin:18px 0; }
-.card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; }
-.card span { color:var(--muted); display:block; margin-bottom:8px; }
-.card strong { font-size:20px; }
+  /* Sombra sutil para cartões */
+  --shadow: 0 6px 24px rgba(15, 23, 42, 0.06), 0 2px 6px rgba(15, 23, 42, 0.04);
 
-.tabs { display:flex; gap:10px; margin: 8px 0 16px; }
-.tab { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:8px 14px; }
-.tab.active { border-color:var(--primary); color:var(--primary); background:#eef2ff; }
+  /* Raios e espaçamentos */
+  --radius: 16px;
+  --radius-sm: 12px;
+  --radius-lg: 20px;
 
-.panel { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; }
+  --space-1: 6px;
+  --space-2: 10px;
+  --space-3: 14px;
+  --space-4: 20px;
+  --space-5: 28px;
+  --space-6: 36px;
+}
 
-.searchRow { display:flex; gap:10px; margin-bottom:16px; }
-.searchRow input { flex:1; padding:10px; border:1px solid var(--line); border-radius:10px; }
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b1220;
+    --surface: #0f172a;
+    --text: #e5e7eb;
+    --muted: #94a3b8;
+    --line: #1f2937;
+    --brand: #60a5fa;
+    --brand-600: #3b82f6;
+    --brand-50: #0b1220;
+    --shadow: 0 10px 30px rgba(0,0,0,.45), 0 2px 10px rgba(0,0,0,.4);
+  }
+}
 
-.leadCard, .contractCard { border-top:1px solid var(--line); padding:14px 0; display:flex; justify-content:space-between; gap:12px; }
-.leadActions, .contractActions > div { display:flex; gap:8px; }
-.btnGhost { background:#fff; border:1px solid var(--line); border-radius:15px; }
-.btnDark { background:#0f172a; color:#fff; border:none; border-radius:15px; }
-.reports { display:grid; grid-template-columns: 1fr 1fr; gap:24px; }
-.danger { color:#ef4444; font-weight:600; }
-.success { color:#16a34a; font-weight:600; }
+/* ========================================================================
+   Reset e tipografia
+   ======================================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
-.backBtn , .save { font-size:14px; padding:6px 10px; }
-.form-lead { max-width:600px; margin:0 auto; }
-.form-lead label { display:block; margin-bottom:6px; font-weight:600; }
-.form-lead input, .form-lead select { width:100%; padding:10px }
-.align-buttons { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+html, body, #root {
+  height: 100%;
+}
 
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3 {
+  margin: 0 0 var(--space-3);
+  line-height: 1.2;
+}
+
+p {
+  margin: 0 0 var(--space-2);
+  color: var(--muted);
+}
+
+small {
+  color: var(--muted);
+}
+
+/* Links básicos (NavLink) */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Acessibilidade no foco dos elementos interativos */
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ========================================================================
+   Layout geral da Home (container e topbar)
+   ======================================================================== */
+.container {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-4);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.topbar h1 {
+  font-size: clamp(24px, 3.4vw, 40px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* Botão primário (“+ Novo Lead”) */
+.btnPrimary {
+  background: var(--brand);
+  color: #fff;
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .06s ease, background .18s ease;
+  box-shadow: var(--shadow);
+}
+.btnPrimary:hover { background: var(--brand-600); }
+.btnPrimary:active { transform: translateY(1px) scale(0.99); }
+
+/* ========================================================================
+   Cards do topo (Leads Ativos, Propostas Enviadas, Dólar, Calendário)
+   ======================================================================== */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(210px, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+  box-shadow: var(--shadow);
+  min-height: 96px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.card > span {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.card > strong {
+  display: block;              /* força a data/valor a ficar numa linha só */
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.card > small {
+  display: block;              /* “Próx. feriado …” embaixo */
+  margin-top: 6px;
+}
+
+/* Responsividade dos cards */
+@media (max-width: 1020px) {
+  .cards { grid-template-columns: repeat(2, minmax(210px, 1fr)); }
+}
+@media (max-width: 560px) {
+  .cards { grid-template-columns: 1fr; }
+}
+
+/* ========================================================================
+   Abas (home-tabs) — “Leads & Orçamentos”
+   ======================================================================== */
+.tabs {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.tab {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+  transition: background .2s ease, color .2s ease, border-color .2s ease;
+}
+
+.tab:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+  background: var(--brand-50);
+}
+
+.tab.active {
+  color: #fff;
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
+/* ========================================================================
+   Painel da aba (lista de leads) — LeadsOrcamentos.jsx
+   ======================================================================== */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow);
+}
+
+.panel h2 {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: var(--space-3);
+}
+
+/* Linha de busca (input + botão) */
+.searchRow {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+.searchRow input {
+  flex: 1;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 12px 14px;
+  font-size: 14px;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+.searchRow input:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
+}
+.searchRow button {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--muted);
+  transition: background .2s ease, border-color .2s ease, color .2s ease;
+}
+.searchRow button:hover {
+  color: var(--brand);
+  border-color: var(--brand);
+  background: var(--brand-50);
+}
+
+/* Cartão de lead (cada item da lista) */
+.leadCard {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--line);
+}
+.leadCard:first-of-type { border-top: 0; }
+
+.leadCard h3 {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+.leadCard p {
+  margin: 0 0 4px;
+}
+.leadCard small {
+  display: block;
+}
+
+/* Ações do lead (botões do lado direito) */
+.leadActions {
+  display: grid;
+  grid-auto-flow: column;
+  gap: var(--space-2);
+}
+
+/* Responsividade: ações embaixo no mobile */
+@media (max-width: 680px) {
+  .leadCard {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+  .leadActions {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(3, minmax(120px, 1fr));
+  }
+}
+
+/* ========================================================================
+   Botões reutilizáveis (ghost, dark, disabled, back, salvar, danger)
+   ======================================================================== */
+.btnGhost {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 600;
+  transition: background .18s ease, border-color .18s ease, color .18s ease, transform .06s ease;
+}
+.btnGhost:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+  background: var(--brand-50);
+}
+.btnGhost:active { transform: translateY(1px) scale(0.99); }
+
+.btnDark {
+  background: #0b1220;
+  color: #fff;
+  border: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 700;
+  transition: background .18s ease, transform .06s ease;
+}
+.btnDark:hover { background: #111a2e; }
+.btnDark:active { transform: translateY(1px) scale(0.99); }
+
+.btnDisabled,
+.btnDisabled:hover {
+  background: #f1f5f9;
+  color: #94a3b8;
+  border: 1px solid var(--line);
+  cursor: not-allowed;
+}
+
+/* Botão "Salvar" nos formulários */
+.save {
+  background: var(--brand);
+  color: #fff;
+  border: 0;
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .18s ease, transform .06s ease;
+}
+.save:hover { background: var(--brand-600); }
+.save:active { transform: translateY(1px) scale(0.99); }
+
+/* Botão “Voltar” (componente BackHomeButton) */
+.backBtn {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background .2s ease, color .2s ease, border-color .2s ease;
+}
+.backBtn:hover {
+  color: var(--brand);
+  border-color: var(--brand);
+  background: var(--brand-50);
+}
+
+/* Botão excluir */
+.btnDanger {
+  background: #ffebee;
+  border: 1px solid #ef9a9a;
+  color: #b91c1c;
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter .15s ease, transform .06s ease;
+}
+.btnDanger:hover { filter: brightness(0.98); }
+.btnDanger:active { transform: translateY(1px) scale(0.99); }
+
+/* ========================================================================
+   Formulários (CadastroCliente / EditarCliente)
+   ======================================================================== */
+
+/* Contêineres principais */
+.leadForm,
+.editForm {
+  max-width: 820px;
+  margin: 0 auto;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: var(--shadow);
+}
+
+.leadForm h1,
+.editForm h1 {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: var(--space-4);
+}
+
+/* Grupos de campos */
+.form-lead,
+.form-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: var(--space-3);
+}
+
+.form-lead label,
+.form-edit label {
+  font-size: 14px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* Inputs e textareas */
+.form-lead input,
+.form-edit input,
+.form-lead textarea,
+.form-edit textarea {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 14px;
+  color: var(--text);
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.form-lead input:focus,
+.form-edit input:focus,
+.form-lead textarea:focus,
+.form-edit textarea:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
+}
+
+/* Estado de erro em campos */
+.input-error {
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, .1) !important;
+}
+
+/* Mensagens de feedback */
+.error-message {
+  color: var(--danger);
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin: 6px 0;
+}
+
+.success-message {
+  color: var(--ok);
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin: 6px 0;
+}
+
+/* Ações do formulário (botões agrupados) */
+.form-actions,
+.align-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+/* ========================================================================
+   Utilitários
+   ======================================================================== */
+
+/* Divisória suave para listas dentro de painéis */
+.divider {
+  height: 1px;
+  background: var(--line);
+  margin: var(--space-3) 0;
+}
+
+/* Esconde elementos somente visuais de acessibilidade */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  clip: rect(0 0 0 0);
+  overflow: hidden;
+}
+
+/* Animação sutil para entrada de cartões e painéis */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.card, .panel, .leadForm, .editForm { animation: fadeUp .24s ease both; }

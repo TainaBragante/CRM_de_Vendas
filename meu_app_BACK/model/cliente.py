@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer
+from sqlalchemy import Column, String, Integer, Boolean
 from .base import Base
 
 
@@ -17,8 +17,9 @@ class Cliente(Base):
     bairro     = Column(String(140), nullable=False)
     cidade     = Column(String(140), nullable=False)
     estado     = Column(String(2),   nullable=False)
+    proposta_enviada = Column(Boolean, nullable=False, default=False)
 
-    def __init__(self, cpf: str, nome: str, email: str, telefone: str, cep: str, logradouro: str, numero: str, complemento: str, bairro: str, cidade: str, estado: str):
+    def __init__(self, cpf: str, nome: str, email: str, telefone: str, cep: str, logradouro: str, numero: str, complemento: str, bairro: str, cidade: str, estado: str, proposta_enviada: bool = False):
         """
         Cria um cliente
         """
@@ -33,4 +34,5 @@ class Cliente(Base):
         self.bairro      = bairro
         self.cidade      = cidade
         self.estado      = estado
+        self.proposta_enviada = proposta_enviada
 

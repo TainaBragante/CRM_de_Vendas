@@ -43,6 +43,7 @@ class ClienteViewSchema(ClienteSchema):
     bairro: str = "Jardim Jockei Club"
     cidade: str = "Londrina"
     estado: str = "PR"
+    proposta_enviada: bool = False
 
 class ClienteDeleteSchema(BaseModel):
     """ Define como um cliente será deletado.
@@ -68,6 +69,7 @@ def apresentar_clientes(clientes: List[Cliente]):
             "bairro": cliente.bairro,
             "cidade": cliente.cidade,
             "estado": cliente.estado,
+            "proposta_enviada": cliente.proposta_enviada,
         })
 
     return {"clientes": resultado}
@@ -87,6 +89,7 @@ def apresentar_cliente(cliente: Cliente):
             "bairro": cliente.bairro,
             "cidade": cliente.cidade,
             "estado": cliente.estado,
+            "proposta_enviada": cliente.proposta_enviada,
         }
 
 def deletar_cliente(cpf: int):

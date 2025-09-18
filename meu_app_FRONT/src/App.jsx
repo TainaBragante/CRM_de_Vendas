@@ -3,8 +3,6 @@ import Home from "./pages/Home";
 import EditarCliente from "./pages/EditarCliente";
 import CadastroCliente from "./pages/CadastroCliente";
 import LeadsOrcamentos from "./pages/home-tabs/LeadsOrcamentos";
-import Contratos from "./pages/home-tabs/Contratos";
-import Relatorio from "./pages/home-tabs/Relatorio";
 
 
 export default function App() {
@@ -14,8 +12,6 @@ export default function App() {
       <Route path="/" element={<Home />}>
         <Route index element={<Navigate to="leads" replace />} />
         <Route path="leads" element={<LeadsOrcamentos />} />
-        <Route path="contratos" element={<Contratos />} />
-        <Route path="relatorio" element={<Relatorio />} />
       </Route>
 
       {/* Página separada para o botão "+ Novo Lead" */}
