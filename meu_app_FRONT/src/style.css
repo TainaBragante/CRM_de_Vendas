@@ -3,7 +3,7 @@
    ======================================================================== */
 :root {
   /* Cores principais */
-  --bg: #f6f8fb;              /* fundo geral da aplicação */
+  --bg: #f6f8fb;               /* fundo geral da aplicação */
   --surface: #ffffff;          /* cartões, painéis, inputs */
   --text: #0f172a;             /* texto principal (slate-900) */
   --muted: #475569;            /* texto secundário (slate-600) */
