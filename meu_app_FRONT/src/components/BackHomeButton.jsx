@@ -6,7 +6,11 @@ import { useNavigate } from "react-router-dom";
 export default function BackHomeButton({ label = "Voltar" }) {
   const navigate = useNavigate();
   return (
-    <button className="backBtn" onClick={() => navigate("/")}>
+    <button 
+    type ="button"
+    className="backBtn" 
+    onClick={() => navigate("/")}
+    >
       {label}
     </button>
   );

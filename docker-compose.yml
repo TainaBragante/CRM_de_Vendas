@@ -1,0 +1,21 @@
+version: "3.9"
+
+services:
+  back:
+    build: ./meu_app_BACK
+    container_name: crm-back
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+
+  front:
+    build: ./meu_app_FRONT
+    container_name: crm-front
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:5000
+    depends_on:
+      - back

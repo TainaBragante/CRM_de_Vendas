@@ -150,7 +150,7 @@ export default function EditarCliente() {
       }
 
       setSuccessMsg("Cliente alterado com sucesso.");
-      // setTimeout(() => navigate("/"), 1200);
+      // setTimeout(() => navigate("/"), 1200);     // Volta para a home após editar
     } catch (err) {
       setServerError(err.message);
     } finally {

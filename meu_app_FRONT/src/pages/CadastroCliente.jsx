@@ -102,14 +102,12 @@ export default function CadastroCliente() {
       });
 
       if (!resp.ok) {
-        let detail = "Erro ao salvar o cliente.";
-        try {
-          const body = await resp.json();
-          detail = body?.detail || detail;
-        } catch {
-          // Fallback to default error message
-        }
-        throw new Error(detail);
+        const msg = await resp.text();
+
+        if (/cpf/i.test(msg)) setError("cpf", { type: "server", message: "CPF já cadastrado" });
+        if (/email/i.test(msg)) setError("email", { type: "server", message: "E-mail já cadastrado" });
+        if (/telefone/i.test(msg)) setError("whatsapp", { type: "server", message: "WhatsApp já cadastrado" });
+        return;
       }
 
       setSuccessMsg("Lead cadastrado com sucesso.");

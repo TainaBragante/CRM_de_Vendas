@@ -213,6 +213,7 @@ a {
   color: #fff;
   background: var(--brand);
   border-color: var(--brand);
+  cursor: default;
 }
 
 /* ========================================================================

@@ -25,16 +25,17 @@ Navegue até o diretório que contém o Dockerfile e o requirements.txt no termi
 Execute **como administrador** o seguinte comando para construir a imagem Docker:
 
 ```
-$ docker build -t rest-api .
+cd meu_app_FRONT
+docker build -t crm-front .
 ```
 
 Uma vez criada a imagem, para executar o container basta executar, **como administrador**, seguinte o comando:
 
 ```
-$ docker run -p 5000:5000 rest-api
+docker run -p 5173:5173 crm-front
 ```
 
-Uma vez executando, para acessar a API, basta abrir o [http://localhost:5000/#/](http://localhost:5000/#/) no navegador.
+Uma vez executando, para acessar o FRONT-END, basta abrir o [http://localhost:5173/#/](http://localhost:5173/#/) no navegador.
 
 
 

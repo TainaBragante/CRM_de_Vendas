@@ -1,4 +1,4 @@
-# Define a imagem base
+# Define a imagem base (backend) 
 FROM python:3.9
 
 # Define o diretório de trabalho dentro do container
@@ -14,4 +14,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Define o comando de execução da API
+# --host 0.0.0.0 permite acesso via http://localhost:5000 no host
 CMD ["flask", "run", "--host", "0.0.0.0", "--port", "5000"]
