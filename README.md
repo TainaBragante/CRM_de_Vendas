@@ -38,6 +38,6 @@ docker compose up -d
 ```
 
 Uma vez executando, para acessar:
-a API, basta abrir o [http://localhost:5000/#/](http://localhost:5000/#/) no navegador.
-o FRONT-END, basta abrir o [http://localhost:5173/#/](http://localhost:5173/#/) no navegador.
+a API, basta abrir o [http://localhost:5000/#/](http://localhost:5000/#/) no navegador,
+e o FRONT-END, basta abrir o [http://localhost:5173/#/](http://localhost:5173/#/) no navegador.
 
