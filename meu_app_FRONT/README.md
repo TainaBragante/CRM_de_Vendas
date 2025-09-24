@@ -8,7 +8,10 @@ Integrações com APIs Externas: **ViaCEP - pública, sem chave, para consulta d
 ---
 ## Como executar
 
-Clone o repositório.
+Para executar o front-end desta aplicação é necessário ter o **Node.js** instalado em sua máquina.  
+- Recomenda-se a versão LTS mais recente (18.x ou superior).  
+- O Node.js já inclui o **npm** (Node Package Manager), que será utilizado para instalar as dependências do projeto.  
+Caso ainda não tenha o Node.js instalado, faça o download em: [https://nodejs.org/](https://nodejs.org/).
 
 No terminal, execute os comandos:
 
