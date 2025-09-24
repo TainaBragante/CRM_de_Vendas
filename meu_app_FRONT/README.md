@@ -1,6 +1,7 @@
 # React + Vite
 
 Front-End da aplicação CRM de Vendas construído com React. 
+
 Integrações com APIs Externas: **ViaCEP - pública, sem chave, para consulta de endereços a partir do CEP; AwesomeAPI - pública, sem chave, para consulta de cotações; Nager.Date - pública, sem chave, para consulta de feriados nacionais.** Tornando o CRM mais prático, automatizando preenchimentos, trazendo dados financeiros em tempo real e melhorando a experiência do usuário final.
 
 
