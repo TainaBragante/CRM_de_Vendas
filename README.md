@@ -1,6 +1,6 @@
 # MVP - Back-End Avançado
 
- Este [projeto](https://www.youtube.com/) demonstra na prática conceitos essenciais de desenvolvimento **Back-End Avançado**. Trata-se de um MVP (Minimum Viable Product) criado para implementar uma solução funcional para o gerenciamento de orçamentos e contratos fechados de clientes.
+ Este [projeto](https://youtu.be/GYThx53cgKM) demonstra na prática conceitos essenciais de desenvolvimento **Back-End Avançado**. Trata-se de um MVP (Minimum Viable Product) criado para implementar uma solução funcional para o gerenciamento de orçamentos e contratos fechados de clientes.
 
 
 ## Arquitetura da aplicação
